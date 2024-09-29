@@ -10,13 +10,11 @@ using System.Xml.Linq;
 
 namespace WCL.Models
 {
-    public class User
+    public class WarehouseStock
     {
-        public int UserID { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; } 
-        public bool IsAdmin { get; set; }
-        public bool IsLogIn { get; set; }
+        public int StockID { get; set; }
+        public int WarehouseID { get; set; }
+        public int ProductID { get; set; }
+        public int Quantity { get; set; }
     }
-
 }

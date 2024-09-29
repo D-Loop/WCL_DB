@@ -10,13 +10,15 @@ using System.Xml.Linq;
 
 namespace WCL.Models
 {
-    public class User
+    public class OrderDetail
     {
-        public int UserID { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; } 
-        public bool IsAdmin { get; set; }
-        public bool IsLogIn { get; set; }
+        public int OrderDetailID { get; set; }
+        public int OrderID { get; set; }
+        public int ProductID { get; set; }
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
     }
+
+
 
 }

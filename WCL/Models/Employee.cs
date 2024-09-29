@@ -10,13 +10,14 @@ using System.Xml.Linq;
 
 namespace WCL.Models
 {
-    public class User
+    public class Employee
     {
-        public int UserID { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; } 
-        public bool IsAdmin { get; set; }
-        public bool IsLogIn { get; set; }
+        public int EmployeeID { get; set; }
+        public string EmployeeName { get; set; }
+        public string Position { get; set; }
+        public DateTime HireDate { get; set; }
     }
+
+
 
 }

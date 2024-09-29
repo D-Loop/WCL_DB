@@ -35,13 +35,12 @@ namespace WCL.ViewModels
 
             CommandClearErrorString = new Command(OnClearErrorString);
             AddSupplierCommand = new Command(AddSupplier);
-            RemoveSupplierCommand = new Command(RemoveSupplier, CanRemoveSupplier);
 
         }
         #endregion
 
         #region Properies
-        public ObservableCollection<Contractors> Suppliers { get; set; }
+        public ObservableCollection<Supplier> Suppliers { get; set; }
 
         public Command AddSupplierCommand { get; }
         public Command RemoveSupplierCommand { get; }
@@ -101,7 +100,7 @@ namespace WCL.ViewModels
         private void AddSupplier()
         {
             // Логика добавления поставщика
-            Suppliers.Add(new Contractors { ContractorId = 1, ContractorName = "ООО Поставщик" });
+            Suppliers.Add(new Supplier { SupplierID = 1, SupplierName = "ООО Поставщик" });
         }
 
         private void RemoveSupplier()
@@ -118,7 +117,7 @@ namespace WCL.ViewModels
             return SelectedSupplier != null;
         }
 
-        public Contractors SelectedSupplier { get; set; }
+        public Supplier SelectedSupplier { get; set; }
 
         #endregion
     }

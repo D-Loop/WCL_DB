@@ -170,11 +170,15 @@
             
         </Style>
         
-        <Style TargetType="DataGrid">
+        <Style TargetType="DataGrid" >
             <Setter Property="Margin" Value="0"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Background" Value="#262626"/>
+            <Setter Property="Background" Value="#2D2D2D"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#3A3A3A"/>
+            <Setter Property="RowBackground" Value="#2D2D2D"/>
+            <Setter Property="BorderBrush" Value="#4D4D4D"/>
         </Style>
         
         <Style TargetType="DataGridColumnHeader">
@@ -183,6 +187,18 @@
             <!-- Установите желаемый цвет фона -->
             <Setter Property="Foreground" Value="#999"/>
             <!-- Установите цвет текста -->
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="Background" Value="#202020"/>
+            <Setter Property="Padding" Value=" 10"/>
+            <Setter Property="Foreground" Value="#999"/>
+        </Style>
+
+        <Style TargetType="DataGridRow">
+            <Setter Property="Background" Value="#202020"/>
+            <Setter Property="Padding" Value=" 10"/>
+            <Setter Property="Foreground" Value="#999"/>
         </Style>
 
         <Style TargetType="TextBox">
@@ -345,8 +361,8 @@
                     <RowDefinition Height="6*"/>
                 </Grid.RowDefinitions>
 
-                <Border Grid.Column="0" Grid.RowSpan="2" Grid.Row="0" Style="{StaticResource BaseBorderStyle}" >
-                    <TabControl>
+                <Border Grid.Column="0" Grid.RowSpan="2" Grid.Row="0" Style="{StaticResource BaseBorderStyle}" Padding="0 10 0 0">
+                    <TabControl Background="Transparent">
                         <TabControl.Style>
                             <Style TargetType="TabControl">
                                 <Setter Property="IsEnabled" Value="False"/>
@@ -354,6 +370,7 @@
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding User.IsLogIn}" Value="true">
                                         <Setter Property="IsEnabled" Value="True"/>
+                                        <Setter Property="Opacity" Value="1"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -487,7 +504,7 @@
                             </Grid>
                         </TabItem>
                         <TabItem Header="Клиенты"  x:Name="ClientsTab">
-                            <Grid>
+                            <Grid >
                                 <DataGrid Name="ClientsDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding Clients}">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="ID" Binding="{Binding Id}" />
@@ -589,9 +606,9 @@
                             <Border Grid.Row="1" CornerRadius="0 0 5 5" Background="#262626" Padding="5" Margin="10 5 10 10 " Style="{StaticResource BaseBorderStyle}" >
                                 <StackPanel>
                                     <TextBlock Text="Логин" Style="{StaticResource TitleStyle}" FontSize="9" HorizontalAlignment="Left" Margin="5 0 0 0"/>
-                                    <TextBox Text="{Binding User.username,ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"/>
+                                    <TextBox Text="{Binding User.Username,ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"/>
                                     <TextBlock Text="Пароль" Style="{StaticResource TitleStyle}" FontSize="9" HorizontalAlignment="Left" Margin="5 0 0 0"/>
-                                    <TextBox KeyDown="TextBox_KeyDown" Text="{Binding User.password, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/> 
+                                    <TextBox KeyDown="TextBox_KeyDown" Text="{Binding User.Password, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/> 
                                     <Button Content="Войти" Style="{StaticResource DataButton}" Foreground="#999" Command="{Binding CommandLogIn}"/>
                                 </StackPanel>
                             </Border>

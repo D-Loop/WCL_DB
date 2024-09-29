@@ -32,25 +32,20 @@ namespace WCL.ViewModels
         public ReportsViewModel()
         {
             ErrorStrig = string.Empty;
-            GenerateReportCommand = new Command(GenerateReport);
-            ExportToExcelCommand = new Command(ExportToExcel);
-            ExportToWordCommand = new Command(ExportToWord);
             CommandClearErrorString = new Command(OnClearErrorString);
         }
         #endregion
 
         #region Properies
-        public ObservableCollection<Report> Reports { get; set; }
-
         public Command GenerateReportCommand { get; }
         public Command ExportToExcelCommand { get; }
         public Command ExportToWordCommand { get; }
         public bool IsHasError => !string.IsNullOrEmpty(_errorStrig);
         public bool IsHasErrorReg => !string.IsNullOrEmpty(_errorStrigReg);
-        private ObservableCollection<Report> _reports { get; set; }
-        public ObservableCollection<Report> Reports
+        private ObservableCollection<SalesReport> _reports { get; set; }
+        public ObservableCollection<SalesReport> Reports
         {
-            get => _reports ?? new ObservableCollection<Report>();
+            get => _reports ?? new ObservableCollection<SalesReport>();
             set
             {
                 _reports = value;
@@ -67,7 +62,12 @@ namespace WCL.ViewModels
                 OnPropertyChanged("IsHasError");
                 OnPropertyChanged("ErrorStrig");
             }
+
         }
+        public ObservableCollection<string> ReportTypes { get; set; }
+        public string SelectedReportType { get; set; }
+        public string ReportStatus { get; set; }
+
         private string? _errorStrigReg { get; set; }
         public string ErrorStringReg
         {
@@ -114,8 +114,8 @@ namespace WCL.ViewModels
             {
                 using (var context = new ProductCompanyContext())
                 {
-                    // Запрашиваем отчеты из базы данных
-                    var reportsFromDb = context.Reports.ToList();
+                    //Запрашиваем отчеты из базы данных
+                   var reportsFromDb = context.SalesReports.ToList();
 
                     // Очищаем коллекцию перед добавлением новых данных
                     Reports.Clear();
@@ -124,7 +124,7 @@ namespace WCL.ViewModels
                     {
                         Reports.Add(report); // Добавляем каждый отчет в коллекцию
                     }
-}
+                }
             }
             catch (Exception ex)
             {
@@ -132,12 +132,29 @@ namespace WCL.ViewModels
             }
         }
 
+        private void ExportToExcel()
+        {
+            // Логика для экспорта данных в Excel
+            //var excelApp = new Application();
+            //Workbook workbook = excelApp.Workbooks.Add();
+            //Worksheet worksheet = workbook.Sheets[1];
+
+            //// Пример заполнения данными
+            //worksheet.Cells[1, 1] = "Пример отчета";
+            //workbook.SaveAs("Отчет.xlsx");
+            //workbook.Close();
+            //excelApp.Quit();
+
+            //ReportStatus = "Отчет экспортирован в Excel!";
+            //OnPropertyChanged(nameof(ReportStatus));
+        }
         private void GenerateReport()
         {
             // Логика генерации отчета
-            Reports.Add(new Report { Id = 1, ReportName = "Отчет", CreationDate = DateTime.Now });
+            //Reports.Add(new Report { Id = 1, ReportName = "Отчет", CreationDate = DateTime.Now });
         }
 
         #endregion
     }
 }
+

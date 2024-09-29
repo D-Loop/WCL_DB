@@ -22,19 +22,13 @@ namespace WCL.View
             InitializeComponent();
 
             // Инициализация каждой ViewModel
-            var inventoryViewModel = new InventoryViewModel();
-            var ordersViewModel = new OrdersViewModel();
             var suppliersViewModel = new SuppliersViewModel();
-            var clientsViewModel = new ClientsViewModel();
             var reportsViewModel = new ReportsViewModel();
             var backupViewModel = new BackupViewModel();
             var sqlQueryViewModel = new SqlQueryViewModel();
 
             // Установка контекста данных для каждого TabItem
-            InventoryTab.DataContext = inventoryViewModel;
-            OrdersTab.DataContext = ordersViewModel;
             SuppliersTab.DataContext = suppliersViewModel;
-            ClientsTab.DataContext = clientsViewModel;
             ReportsTab.DataContext = reportsViewModel;
             BackupTab.DataContext = backupViewModel;
             SqlQueryTab.DataContext = sqlQueryViewModel;
