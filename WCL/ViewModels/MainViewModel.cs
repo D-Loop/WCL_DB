@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic.ApplicationServices;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -31,18 +33,25 @@ namespace WCL.ViewModels
         public MainViewModel()
         {
             ErrorStrig = string.Empty;
-            VisibilityWindowRegistration = Visibility.Collapsed;
-            User = new User();
+            VisibilityWindowTemp = Visibility.Collapsed;
+            VisibilityWindowAddOrder = Visibility.Collapsed;
+            VisibilityWindowAddwarehouse= Visibility.Collapsed;
+            VisibilityWindowAddOrder = Visibility.Collapsed;
+            VisibilityWindowAddCustomer = Visibility.Collapsed;
+
+            User = new UserViewModel();
             CommandCloseWindow = new Command(OnCloseWindow);
             CommandMinimizeWindow = new Command(OnMinimizeWindow);
             CommandMaximizeRestoreWindow = new Command(OnMaximizeRestoreWindow);
 
             CommandLogIn = new Command(OnLogIn);
             CommandLogOut = new Command(OnLogOut);
-            CommandRegistrationUser = new Command(async () => await OnRegistrationUser());
             CommandClearErrorString = new Command(OnClearErrorString);
             CommandChangeVisibilityWindowRegistration= new Command(OnChangeVisibilityWindowRegistration);
 
+            LoadWarehouses();
+            LoadOrders();
+            LoadCustomers();
         }
         #endregion
 
@@ -50,13 +59,53 @@ namespace WCL.ViewModels
 
         public bool IsHasError => !string.IsNullOrEmpty(_errorStrig);
         public bool IsHasErrorReg => !string.IsNullOrEmpty(_errorStrigReg);
-
-        public User User;
-
-        private List<User> _users = new List<User>
+        private List<Customer> _customer { get; set; }
+        public List<Customer> Customers
         {
-            new User { UserID = 1, Username = "admin", Password = "admin123", IsAdmin = true },
-            new User { UserID = 2, Username = "user", Password = "user123", IsAdmin = false }
+            get => _customer ?? new List<Customer>();
+            set
+            {
+                _customer = value;
+                OnPropertyChanged("Customers");
+            }
+        }
+
+        private List<Order> _orders { get; set; }
+        public List<Order> Orders
+        {
+            get => _orders ?? new List<Order>();
+            set
+            {
+                _orders = value;
+                OnPropertyChanged("Orders");
+            }
+        }
+
+        private UserViewModel _user { get; set; }
+        public UserViewModel User
+        {
+            get => _user ?? new UserViewModel();
+            set
+            {
+                _user = value;
+                OnPropertyChanged("IsHasError");
+            }
+        }
+        private List<Warehouse> _warehouse { get; set; }
+        public List<Warehouse> Warehouses
+        {
+            get => _warehouse ?? new List<Warehouse>();
+            set
+            {
+                _warehouse = value;
+                OnPropertyChanged("Warehouses");
+            }
+        }
+
+        private List<UserViewModel> _users = new List<UserViewModel>
+        {
+            new UserViewModel { UserID = 1, Username = "a", Password = "a", IsAdmin = true,FIO ="Lobas Nikita Victorovich" },
+            new UserViewModel { UserID = 2, Username = "user", Password = "user123", IsAdmin = false ,FIO ="Lobas Nikita Victorovich" }
         };
 
         private string? _errorStrig { get; set; }
@@ -81,14 +130,71 @@ namespace WCL.ViewModels
                 OnPropertyChanged("ErrorStringReg");
             }
         }
-        private Visibility _visibilityWindowRegistration { get; set; }
-        public Visibility VisibilityWindowRegistration
+        private Visibility _visibilityWindowTemp { get; set; }
+        public Visibility VisibilityWindowTemp
         {
-            get => _visibilityWindowRegistration ;
+            get => _visibilityWindowTemp;
             set
             {
-                _visibilityWindowRegistration = value;
-                OnPropertyChanged("VisibilityWindowRegistration");
+                _visibilityWindowTemp = value;
+                OnPropertyChanged("VisibilityWindowTemp");
+            }
+        }
+        private Visibility _visibilityWindowAddOrder { get; set; }
+        public Visibility VisibilityWindowAddOrder
+        {
+            get => _visibilityWindowAddOrder;
+            set
+            {
+                _visibilityWindowAddOrder = value;
+                OnPropertyChanged("VisibilityWindowAddOrder");
+            }
+        }
+
+        private Visibility _visibilityWindowAddCustomer { get; set; }
+        public Visibility VisibilityWindowAddCustomer
+        {
+            get => _visibilityWindowAddCustomer;
+            set
+            {
+                _visibilityWindowAddCustomer = value;
+                OnPropertyChanged("VisibilityWindowAddCustomer");
+            }
+        }
+
+        private Visibility _visibilityWindowAddwarehouse { get; set; }
+        public Visibility VisibilityWindowAddwarehouse
+        {
+            get => _visibilityWindowAddwarehouse;
+            set
+            {
+                _visibilityWindowAddwarehouse = value;
+                OnPropertyChanged("VisibilityWindowAddwarehouse");
+            }
+        }
+
+
+        private int _activetab { get; set; }
+        public int Activetab
+        {
+            get => _activetab;
+            set
+            {
+                _activetab = value;
+
+                switch (_activetab)
+                {
+                    case 0: break;
+                    case 1: LoadWarehouses(); break;
+                    case 2: LoadOrders(); break;
+                    case 4: LoadCustomers(); break;
+                    case 5: break;
+                    case 6: break;
+                    
+                    default: break;
+                }
+
+                OnPropertyChanged("Activetab");
             }
         }
         #endregion
@@ -124,6 +230,67 @@ namespace WCL.ViewModels
                 mainWindow.WindowState = WindowState.Maximized;
             }
         }
+        public void AddCustomer(string customerName, string contactName, string phone)
+        {
+            var customer = new Customer { CustomerName = customerName, ContactName = contactName, Phone = phone };
+            using (var context = new ProductCompanyContext())
+            {
+                context.Customers.Add(customer);
+                context.SaveChanges();
+            }
+            VisibilityWindowAddCustomer= Visibility.Collapsed;
+            LoadCustomers();
+
+        }
+
+        public async Task AddOrder(int customerId, int employeeId, DateTime orderDate, string shipAddress, string shipCity)
+        {
+            string sql = "INSERT INTO Orders (CustomerID, EmployeeID, OrderDate, ShipAddress, ShipCity) VALUES (@p0, @p1, @p2, @p3, @p4)";
+            using (var context = new ProductCompanyContext())
+            {
+                await context.Database.ExecuteSqlRawAsync(sql, customerId, employeeId, orderDate, shipAddress, shipCity);
+            }
+
+            VisibilityWindowAddOrder = Visibility.Collapsed;
+            LoadOrders();
+
+        }
+
+        public void AddWarehouse(string warehouseName, string location)
+        {
+            var warehouse = new Warehouse { WarehouseName = warehouseName, Location = location };
+            using (var context = new ProductCompanyContext())
+            {
+                context.Warehouses.Add(warehouse);
+                context.SaveChanges();
+            }
+            VisibilityWindowAddwarehouse = Visibility.Collapsed;
+            LoadWarehouses();
+        }
+
+        private void LoadCustomers()
+        {
+            using (var context = new ProductCompanyContext())
+            {
+                Customers = context.Customers.ToList();
+            }
+        }
+
+        private void LoadOrders()
+        {
+            using (var context = new ProductCompanyContext())
+            {
+                Orders = context.Orders.ToList();
+            }
+        }
+
+        private void LoadWarehouses()
+        {
+            using (var context = new ProductCompanyContext())
+            {
+                Warehouses = context.Warehouses.ToList();
+            }
+        }
 
         /// <summary> Изменить видимость окна регистрации</summary>
         public ICommand CommandChangeVisibilityWindowRegistration { get; set; }
@@ -131,7 +298,7 @@ namespace WCL.ViewModels
         {
             CommandClearErrorString.Execute(null);
             //инвертируем видимость окна
-            VisibilityWindowRegistration = VisibilityWindowRegistration.HasFlag(Visibility.Collapsed)
+            VisibilityWindowTemp = VisibilityWindowTemp.HasFlag(Visibility.Collapsed)
                 ? Visibility.Visible 
                 : Visibility.Collapsed;
         }
@@ -143,13 +310,19 @@ namespace WCL.ViewModels
             try
             {
                 //продожаем только если нет ошибок
-                var user = _users.SingleOrDefault(x => x.Username == User.Username && x.Password == User.Password);
-                if(user != null)
-                {
+                var _user = _users.SingleOrDefault(x => x.Username == User.Username && x.Password == User.Password);
+
+                if(_user != null)
+                { 
+                    User.FIO = _user.FIO;
                     User.IsLogIn = true;
                 }
+                else
+                {
+                    ErrorStrig = "Введены неверные данные";
+                }
             }
-            catch 
+            catch (Exception ex) 
             {
                 ErrorStrig = "Ошибка входа в систему";
             }
@@ -161,7 +334,8 @@ namespace WCL.ViewModels
         {
             try
             {
-               
+                if(User != null)
+                    User.IsLogIn = false;
             }
             catch
             {
@@ -184,74 +358,6 @@ namespace WCL.ViewModels
             }
         }
 
-        /// <summary> Регистрация пользователя по введенным даным</summary>
-        public ICommand CommandRegistrationUser { get; set; }
-        private async Task OnRegistrationUser()
-        {
-            try
-            {
-                //NewUser.ValidateForReg();
-
-                //if (!NewUser.IsNullError) 
-                //{
-                //    ErrorStringReg = "Все поля обязательны";
-                //    return;
-                //}
-
-                //if(NewUser.password!= NewUser.RepeatedPassword) 
-                //{
-                //    ErrorStringReg = "Пароли не совпадают";
-                //    return;
-                //}
-
-                //using (var httpClient = new HttpClient())
-                //{
-                //    var data = JsonSerializer.Serialize(NewUser);
-                //    //запрос на регистрацию пользователя
-                //    var response = await httpClient.PostAsync("https://petstore.swagger.io/v2/user", new StringContent(data, Encoding.UTF8, "application/json"));
-                //    response.EnsureSuccessStatusCode();
-
-                //    if (response.StatusCode.HasFlag(System.Net.HttpStatusCode.OK))
-                //    {
-                //        //Попытка входа в систему
-                //        response = await httpClient.GetAsync($"https://petstore.swagger.io/v2/user/login?username={NewUser.username}&password={NewUser.password}");
-
-                //        //Проверка успешности ответа
-                //        response.EnsureSuccessStatusCode();
-
-                //        if (response.StatusCode.HasFlag(System.Net.HttpStatusCode.OK))
-                //        {
-                //            //попытка получить данные пользователя
-                //            response = await httpClient.GetAsync($"https://petstore.swagger.io/v2/user/{NewUser.username}");
-                //            if (response.StatusCode.HasFlag(System.Net.HttpStatusCode.OK))
-                //            {
-                //                //получаем тело ответа в формате сериализованного обьекта
-                //                var json = await response.Content.ReadAsStringAsync();
-                //                //присваем десериализовванный обьект пользователя 
-                //                User = JsonSerializer.Deserialize<UserViewModel>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new UserViewModel();
-                //                //если есть id значит получили пользователя и считаем вход успешеым
-                //                if (User.id != 0)
-                //                    User.IsLogIn = true;
-                //                CommandClearErrorString.Execute(null);
-                //                VisibilityWindowRegistration = Visibility.Collapsed;
-                //            }
-                //            else
-                //            {
-                //                ErrorStringReg = "Нет данных пользователя";
-                //            }
-                //        }
-                //        else
-                //        {
-                //            ErrorStringReg = "Ошибка входа нового пользователя";
-                //        }
-                //    }
-                //}
-            }
-            catch
-            {
-                ErrorStrig = "Ошибка регистрации";
-            }
-        }
 
         #endregion
     }

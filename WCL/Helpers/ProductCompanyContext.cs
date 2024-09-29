@@ -22,7 +22,13 @@ namespace WCL.Helpers
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<WarehouseStock> WarehouseStocks { get; set; }
         public DbSet<SalesReport> SalesReports { get; set; }
-
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=ProductCompanyDB;Trusted_Connection=True;");
+            }
+        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Product>().ToTable("Products");

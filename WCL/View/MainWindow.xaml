@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WCL.View" 
+        xmlns:locals="clr-namespace:WCL.ViewModels"
+        
         Name="Main"  ResizeMode="CanResizeWithGrip"
         xmlns:dataContext="clr-namespace:WCL.ViewModels"
         mc:Ignorable="d" WindowStyle="None" 
@@ -118,6 +120,7 @@
 
         <Style x:Key="DataButton" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
             <Setter Property="Margin" Value="5 3 5 0"/>
+            <Setter Property="Padding" Value="5 0 5 0"/>
             <Setter Property="Background" Value="#4c0099"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Height" Value="30"/>
@@ -361,8 +364,8 @@
                     <RowDefinition Height="6*"/>
                 </Grid.RowDefinitions>
 
-                <Border Grid.Column="0" Grid.RowSpan="2" Grid.Row="0" Style="{StaticResource BaseBorderStyle}" Padding="0 10 0 0">
-                    <TabControl Background="Transparent">
+                <Border Grid.Column="0" Grid.RowSpan="2" Grid.Row="0"  Style="{StaticResource BaseBorderStyle}" Padding="0 10 0 0">
+                    <TabControl Background="Transparent" SelectedIndex="{Binding ActiveTab}">
                         <TabControl.Style>
                             <Style TargetType="TabControl">
                                 <Setter Property="IsEnabled" Value="False"/>
@@ -407,32 +410,11 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
-                                    <Grid Margin="0 5 0 0" >
-                                        
-                                        <Grid.ColumnDefinitions>
-                                           <ColumnDefinition Width="*"/>
-                                           <ColumnDefinition Width="2*"/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <Grid.RowDefinitions>
-                                           <RowDefinition Height="20"/>
-                                           <RowDefinition Height="20"/>
-                                           <RowDefinition Height="20"/>
-                                           <RowDefinition Height="20"/>
-                                           <RowDefinition Height="20"/>
-                                        </Grid.RowDefinitions>
-
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource HeaderStyle}" Text="Индефикатор:"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource HeaderStyle}" Text="{Binding User.idVM}"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource HeaderStyle}" Text="Имя:"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource HeaderStyle}" Text="{Binding User.firstName}"/>
-                                        <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource HeaderStyle}" Text="Фамилия:"/>
-                                        <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource HeaderStyle}" Text="{Binding User.lastName}"/>
-                                        <TextBlock Grid.Row="3" Grid.Column="0" Style="{StaticResource HeaderStyle}" Text="Email:"/>
-                                        <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource HeaderStyle}" Text="{Binding User.email}"/>
-                                        <TextBlock Grid.Row="4" Grid.Column="0" Style="{StaticResource HeaderStyle}" Text="Телефон:"/>
-                                        <TextBlock Grid.Row="4" Grid.Column="1" Style="{StaticResource HeaderStyle}" Text="{Binding User.phone}"/>
-
+                                    <Grid Margin="0 5 0 0" VerticalAlignment="Top">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource HeaderStyle}" Text="ФИО:"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource HeaderStyle}" Text="{Binding User.FIO}"/>
+                                        </StackPanel>
                                     </Grid>
 
                                 </Border>
@@ -441,79 +423,62 @@
                             </Grid>
                         </TabItem>
 
-                        <!--Раздел с данными разработчика-->
-                        <TabItem Header="Данные">
-                            <Border Background="#262626" CornerRadius="0 0 5 5">
-                                <StackPanel>
-                                    <TextBlock Style="{StaticResource TitleStyle}" TextAlignment="Justify" FontSize="13" 
-                                               Padding="0 5 0 0" Margin="10 0 5 0"  VerticalAlignment="Top" TextWrapping="Wrap">
-                                        Данное приложение является тестовым заданием и разработано 
-                                        Никитой Лобасом специально для вакансии .Net разработчика.
-                                        Согласно полученому техническому заданию.
-                                    </TextBlock>
-                                    <Label Background="#999" Height="1"  Margin="10 10 10 0"/>
-                                    <TextBlock Style="{StaticResource TitleStyle}" TextAlignment="Justify" FontSize="13" 
-                                               Padding="0 5 0 0" Margin="10 0 5 0"  VerticalAlignment="Top" TextWrapping="Wrap">
-                                        На момент разработки имею больше 3-х лет опыта работы на C# с использованием WPF и шаблона MVVM. 
-                                        Также работал на протяжении всего этого времени с MySQL на уровне использования транзакций, хранимых процедур, проектирования таблиц и связей между ними.
-                                        Работал с клиент-серверной архетиктурой.
-                                    </TextBlock>
-                                </StackPanel>
-                            </Border>
-                        </TabItem>
 
                         <TabItem Header="Склад"  x:Name="InventoryTab">
                             <Grid>
-                                <DataGrid Name="InventoryDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding InventoryItems}">
+                                <DataGrid Name="InventoryDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding Warehouses}">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" />
-                                        <DataGridTextColumn Header="Название" Binding="{Binding Name}" />
-                                        <DataGridTextColumn Header="Количество" Binding="{Binding Quantity}" />
-                                        <DataGridTextColumn Header="Цена" Binding="{Binding Price}" />
+                                        <DataGridTextColumn Header="ID" Binding="{Binding WarehouseID}" />
+                                        <DataGridTextColumn Header="Название" Binding="{Binding WarehouseName}" />
+                                        <DataGridTextColumn Header="Количество" Binding="{Binding Location}" />
                                     </DataGrid.Columns>
                                 </DataGrid>
-                                <Button  Style="{StaticResource DataButton}"  Content=" Добавить " Command="{Binding AddProductCommand}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10"/>
-                                <Button Style="{StaticResource DataButton}"  Content="Удалить" Command="{Binding RemoveProductCommand}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"/>
+                                <Button  Style="{StaticResource DataButton}"  Width="100"  Content=" Добавить " Click="Button_Click_1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10"/>
+                                <Button Style="{StaticResource DataButton}" Width="100"  Content="Удалить" Command="{Binding RemoveProductCommand}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"/>
                             </Grid>
                         </TabItem>
                         <TabItem Header="Заказы" x:Name="OrdersTab">
                             <Grid>
                                 <DataGrid Name="OrdersDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding Orders}">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" />
-                                        <DataGridTextColumn Header="Клиент" Binding="{Binding ClientName}" />
+                                        <DataGridTextColumn Header="ID" Binding="{Binding OrderID}" />
+                                        <DataGridTextColumn Header="Клиент" Binding="{Binding CustomerID}" />
                                         <DataGridTextColumn Header="Дата" Binding="{Binding OrderDate}" />
-                                        <DataGridTextColumn Header="Статус" Binding="{Binding Status}" />
+                                        <DataGridTextColumn Header="Сотрудник" Binding="{Binding EmployeeID}" />
+                                        <DataGridTextColumn Header="Адрес " Binding="{Binding ShipAddress}" />
+                                        <DataGridTextColumn Header="Город" Binding="{Binding ShipCity}" />
                                     </DataGrid.Columns>
                                 </DataGrid>
-                                <Button  Style="{StaticResource DataButton}"  Content="Создать" Command="{Binding CreateOrderCommand}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10"/>
-                                <Button  Style="{StaticResource DataButton}"  Content="Отменить" Command="{Binding CancelOrderCommand}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"/>
+                                <Button  Style="{StaticResource DataButton}" Width="100"  Content="Создать" Click="Button_Click_3" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10"/>
+                                <Button  Style="{StaticResource DataButton}" Width="100"  Content="Отменить" Command="{Binding CancelOrderCommand}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"/>
                             </Grid>
                         </TabItem>
-                        <TabItem Header="Поставщики" x:Name="SuppliersTab">
+                        <TabItem Header="Поставщики" x:Name="SuppliersTab" d:DataContext="{d:DesignInstance Type=locals:SuppliersViewModel}">
                             <Grid>
                                 <DataGrid Name="SuppliersDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding Suppliers}">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" />
-                                        <DataGridTextColumn Header="Название" Binding="{Binding Name}" />
-                                        <DataGridTextColumn Header="Контактное лицо" Binding="{Binding ContactPerson}" />
+                                        <DataGridTextColumn Header="ID" Binding="{Binding SupplierID}" />
+                                        <DataGridTextColumn Header="Название" Binding="{Binding SupplierName}" />
+                                        <DataGridTextColumn Header="Контактное лицо" Binding="{Binding ContactName}" />
+                                        <DataGridTextColumn Header="Контактное лицо" Binding="{Binding Phone}" />
                                     </DataGrid.Columns>
                                 </DataGrid>
-                                <Button  Style="{StaticResource DataButton}"  Content="Добавить" Command="{Binding AddSupplierCommand}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10"/>
-                                <Button  Style="{StaticResource DataButton}"  Content="Удалить" Command="{Binding RemoveSupplierCommand}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"/>
+                                <Button  Style="{StaticResource DataButton}" Width="100"  Content="Добавить" Command="{Binding CommandChangeVisibility}" Click="Button_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10"/>
+                                <Button  Style="{StaticResource DataButton}" Width="100"  Content="Удалить" Command="{Binding RemoveSupplierCommand}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"/>
                             </Grid>
                         </TabItem>
                         <TabItem Header="Клиенты"  x:Name="ClientsTab">
                             <Grid >
-                                <DataGrid Name="ClientsDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding Clients}">
+                                <DataGrid Name="ClientsDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding Customers}">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" />
-                                        <DataGridTextColumn Header="Имя" Binding="{Binding Name}" />
-                                        <DataGridTextColumn Header="Электронная почта" Binding="{Binding Email}" />
+                                        <DataGridTextColumn Header="ID" Binding="{Binding CustomerID}" />
+                                        <DataGridTextColumn Header="Имя" Binding="{Binding CustomerName}" />
+                                        <DataGridTextColumn Header="Имя котнакта" Binding="{Binding ContactName}" />
+                                        <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}" />
                                     </DataGrid.Columns>
                                 </DataGrid>
-                                <Button  Style="{StaticResource DataButton}"  Content="Добавить" Command="{Binding AddClientCommand}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10"/>
-                                <Button  Style="{StaticResource DataButton}"  Content="Удалить" Command="{Binding RemoveClientCommand}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"/>
+                                <Button  Style="{StaticResource DataButton}" Width="100" Content=" Добавить " Click="Button_Click_2" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10"/>
+                                <Button  Style="{StaticResource DataButton}" Width="100" Content="Удалить" Command="{Binding RemoveClientCommand}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"/>
                             </Grid>
                         </TabItem>
                         <TabItem Header="Отчеты" x:Name="ReportsTab"    >
@@ -525,9 +490,9 @@
                                         <DataGridTextColumn Header="Дата создания" Binding="{Binding CreationDate}" />
                                     </DataGrid.Columns>
                                 </DataGrid>
-                                <Button  Style="{StaticResource DataButton}"  Content="Сформировать отчет" Command="{Binding GenerateReportCommand}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10"/>
-                                <Button  Style="{StaticResource DataButton}"  Content="Экспорт в Excel" Command="{Binding ExportToExcelCommand}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10"/>
-                                <Button  Style="{StaticResource DataButton}"  Content="Экспорт в Word" Command="{Binding ExportToWordCommand}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"/>
+                                <Button  Style="{StaticResource DataButton}" Width="150"   Content="Сформировать отчет" Command="{Binding GenerateReportCommand}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10"/>
+                                <Button  Style="{StaticResource DataButton}" Width="150" Content="Экспорт в Excel" Command="{Binding ExportToExcelCommand}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10"/>
+                                <Button  Style="{StaticResource DataButton}" Width="150" Content="Экспорт в Word" Command="{Binding ExportToWordCommand}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"/>
                             </Grid>
                         </TabItem>
                         <TabItem Header="Резервное копирование" x:Name="BackupTab">
@@ -612,13 +577,6 @@
                                     <Button Content="Войти" Style="{StaticResource DataButton}" Foreground="#999" Command="{Binding CommandLogIn}"/>
                                 </StackPanel>
                             </Border>
-                            <Button HorizontalAlignment="Stretch" Margin="10 " Content="Регистрация" Command="{Binding CommandChangeVisibilityWindowRegistration}" Grid.Row="2" VerticalAlignment="Bottom">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource DataButton}">
-                                        <Setter Property="Background" Value="#262626"/>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
                         </Grid>
                         <!--Log in-->
 
@@ -672,19 +630,19 @@
         <!--end data view-->
 
         <!--registration-->
-        <Grid Background="#99202020" Visibility="{Binding VisibilityWindowRegistration}">
+        <Grid Background="#99202020" Visibility="{Binding VisibilityWindowTemp}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="490"/>
+                <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Column="1" Grid.Row="1" Background="#262626">
+            <Grid Grid.Column="1" Grid.Row="1"  Background="#262626">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
                     <RowDefinition Height="*"/>
@@ -707,26 +665,69 @@
                     </Grid>
                 </Border>
                 <!--end heared-->
-    
-                <Border Grid.Row="1" CornerRadius="0 0 5 5" Background="#262626" Padding="5" Margin="10 5 10 10 " Style="{StaticResource BaseBorderStyle}" >
-                    <StackPanel>
-                        <TextBlock Text="Логин" Style="{StaticResource TitleStyle}" FontSize="11" HorizontalAlignment="Left" Margin="5 0 0 0"/>
-                        <TextBox Text="{Binding NewUser.username,ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}"/>
-                        <TextBlock Text="Пароль" Style="{StaticResource TitleStyle}" FontSize="11" HorizontalAlignment="Left" Margin="5 0 0 0"/>
-                        <TextBox Text="{Binding NewUser.password, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBlock Text="Повторите пароль" Style="{StaticResource TitleStyle}" FontSize="11" HorizontalAlignment="Left" Margin="5 0 0 0"/>
-                        <TextBox Text="{Binding NewUser.RepeatedPassword, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBlock Text="Имя" Style="{StaticResource TitleStyle}" FontSize="11" HorizontalAlignment="Left" Margin="5 0 0 0"/>
-                        <TextBox Text="{Binding NewUser.firstName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBlock Text="Фамилия" Style="{StaticResource TitleStyle}" FontSize="11" HorizontalAlignment="Left" Margin="5 0 0 0"/>
-                        <TextBox Text="{Binding NewUser.lastName, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBlock Text="Телефон" Style="{StaticResource TitleStyle}" FontSize="11" HorizontalAlignment="Left" Margin="5 0 0 0"/>
-                        <TextBox Text="{Binding NewUser.phone, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBlock Text="Почта" Style="{StaticResource TitleStyle}" FontSize="11" HorizontalAlignment="Left" Margin="5 0 0 0"/>
-                        <TextBox KeyDown="TextBox_KeyDown" Text="{Binding NewUser.email, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <Button Content="Регистрация" Style="{StaticResource DataButton}" Foreground="#999" Command="{Binding CommandRegistrationUser}"/>
+                <Border Grid.Row="1" CornerRadius="0 0 5 5" BorderThickness="1" Background="#262626" Padding="5" Margin="10 5 10 10 " Style="{StaticResource BaseBorderStyle}" >
+                    <StackPanel >
+                        <StackPanel Margin="20" Visibility="{Binding ElementName=SuppliersTab, Path=DataContext.VisibilityWindowAddSuppliers,UpdateSourceTrigger=PropertyChanged}">
+                            <TextBlock Text="Supplier Name:"  Style="{StaticResource TitleStyle}"/>
+                            <TextBox x:Name="SupplierNameTextBox" Width="150" />
+
+                            <TextBlock Text="Contact Name:" Margin="10,10,0,0"  Style="{StaticResource TitleStyle}"/>
+                            <TextBox x:Name="ContactNameTextBox" Width="150" />
+
+                            <TextBlock Text="Phone:" Margin="10,10,0,0" Style="{StaticResource TitleStyle}"/>
+                            <TextBox x:Name="PhoneTextBox" Width="150" />
+
+                            <Button  Style="{StaticResource DataButton}" Content="Добавить" Width="200" Margin="0,10,0,0" Click="AddSupplierButton_Click" />
+                            
+                        </StackPanel>
+
+                        <StackPanel Margin="20" Visibility="{Binding VisibilityWindowAddCustomer}">
+                            <TextBlock Text="Имя клиента:" Style="{StaticResource TitleStyle}"/>
+                            <TextBox x:Name="CustomerNameTextBox" Width="150" />
+
+                            <TextBlock Text="Контактное лицо:" Margin="10,10,0,0" Style="{StaticResource TitleStyle}"/>
+                            <TextBox x:Name="CustomerContactTextBox" Width="150" />
+
+                            <TextBlock Text="Телефон:" Margin="10,10,0,0" Style="{StaticResource TitleStyle}"/>
+                            <TextBox x:Name="CustomerPhoneTextBox" Width="150" />
+
+                            <Button Style="{StaticResource DataButton}" Content="Добавить" Width="200" Margin="0,10,0,0" Click="AddCustomerButton_Click"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="20" Visibility="{Binding VisibilityWindowAddOrder}">
+                            <TextBlock Text="ID клиента:" Style="{StaticResource TitleStyle}"/>
+                            <TextBox x:Name="CustomerIdTextBox" Width="150" />
+
+                            <TextBlock Text="ID сотрудника:" Margin="10,10,0,0" Style="{StaticResource TitleStyle}"/>
+                            <TextBox x:Name="EmployeeIdTextBox" Width="150" />
+
+                            <TextBlock Text="Дата заказа:" Margin="10,10,0,0" Style="{StaticResource TitleStyle}"/>
+                            <DatePicker Background="#262626" x:Name="OrderDateTextBox" Width="150" />
+
+                            <TextBlock Text="Адрес доставки:" Margin="10,10,0,0" Style="{StaticResource TitleStyle}"/>
+                            <TextBox x:Name="ShipAddressTextBox" Width="150" />
+
+                            <TextBlock Text="Город доставки:" Margin="10,10,0,0" Style="{StaticResource TitleStyle}"/>
+                            <TextBox x:Name="ShipCityTextBox" Width="150" />
+
+                            <Button Style="{StaticResource DataButton}" Content="Добавить" Width="200" Margin="0,10,0,0" Click="AddOrderButton_Click"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="20" Visibility="{Binding VisibilityWindowAddwarehouse}">
+                            <TextBlock Text="Название склада:" Style="{StaticResource TitleStyle}"/>
+                            <TextBox x:Name="WarehouseNameTextBox" Width="150" />
+
+                            <TextBlock Text="Местоположение:" Margin="10,10,0,0" Style="{StaticResource TitleStyle}"/>
+                            <TextBox x:Name="WarehouseLocationTextBox" Width="150" />
+
+                            <Button Style="{StaticResource DataButton}" Content="Добавить" Width="200" Margin="0,10,0,0" Click="AddWarehouseButton_Click"/>
+                        </StackPanel>
+
+
                     </StackPanel>
+
+
                 </Border>
 
                 <!--Start footer-->
@@ -756,5 +757,7 @@
             
         </Grid>
         <!--registration-->
+        
+        
     </Grid>
 </Window>

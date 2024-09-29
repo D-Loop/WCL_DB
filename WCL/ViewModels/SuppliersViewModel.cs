@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Printing;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
@@ -32,17 +33,27 @@ namespace WCL.ViewModels
         public SuppliersViewModel()
         {
             ErrorStrig = string.Empty;
-
+            VisibilityWindowAddSuppliers = Visibility.Collapsed;
+            Suppliers = new ObservableCollection<Supplier>();
             CommandClearErrorString = new Command(OnClearErrorString);
-            AddSupplierCommand = new Command(AddSupplier);
+            CommandChangeVisibility=new Command(OnChangeVisibility);
+            LoadSuppliers();
 
         }
         #endregion
 
         #region Properies
-        public ObservableCollection<Supplier> Suppliers { get; set; }
+        private ObservableCollection<Supplier> _suppliers { get; set; }
+        public ObservableCollection<Supplier> Suppliers
+        {
+            get => _suppliers ;
+            set
+            {
+                _suppliers = value;
+                OnPropertyChanged("Suppliers");
+            }
+        }
 
-        public Command AddSupplierCommand { get; }
         public Command RemoveSupplierCommand { get; }
 
         public bool IsHasError => !string.IsNullOrEmpty(_errorStrig);
@@ -70,14 +81,14 @@ namespace WCL.ViewModels
                 OnPropertyChanged("ErrorStringReg");
             }
         }
-        private Visibility _visibilityWindowRegistration { get; set; }
-        public Visibility VisibilityWindowRegistration
+        private Visibility _visibilityWindowAddSuppliers { get; set; }
+        public Visibility VisibilityWindowAddSuppliers
         {
-            get => _visibilityWindowRegistration ;
+            get => _visibilityWindowAddSuppliers;
             set
             {
-                _visibilityWindowRegistration = value;
-                OnPropertyChanged("VisibilityWindowRegistration");
+                _visibilityWindowAddSuppliers = value;
+                OnPropertyChanged("VisibilityWindowAddSuppliers");
             }
         }
         #endregion
@@ -97,10 +108,49 @@ namespace WCL.ViewModels
                 ErrorStrig = "Ошибка выхода из системы";
             }
         }
-        private void AddSupplier()
+
+        public ICommand CommandChangeVisibility{ get; set; }
+        private void OnChangeVisibility()
         {
-            // Логика добавления поставщика
-            Suppliers.Add(new Supplier { SupplierID = 1, SupplierName = "ООО Поставщик" });
+            try
+            {
+                VisibilityWindowAddSuppliers = VisibilityWindowAddSuppliers  == Visibility.Visible ? Visibility.Collapsed: Visibility.Visible;
+            }
+            catch
+            {
+                ErrorStrig = "Ошибка выхода из системы";
+            }
+        }
+
+        public void AddSupplier(string supplierName, string contactName, string phone)
+        {
+            using (var context = new ProductCompanyContext())
+            {
+                // Создаем нового поставщика
+                var supplier = new Supplier
+                {
+                    SupplierName = supplierName,
+                    ContactName = contactName,
+                    Phone = phone
+                };
+
+                // Добавляем в контекст
+                context.Suppliers.Add(supplier);
+
+                // Сохраняем изменения в базе данных
+                context.SaveChanges();
+            }
+
+            LoadSuppliers();
+        }
+
+        private void LoadSuppliers()
+        {
+            Suppliers = null;
+            using (var context = new ProductCompanyContext())
+            {
+                Suppliers  = new ObservableCollection<Supplier>(context.Suppliers);
+            }
         }
 
         private void RemoveSupplier()

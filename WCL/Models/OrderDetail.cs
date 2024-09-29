@@ -7,11 +7,13 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Xml.Linq;
+using System.ComponentModel.DataAnnotations;
 
 namespace WCL.Models
 {
     public class OrderDetail
     {
+        [Key]  
         public int OrderDetailID { get; set; }
         public int OrderID { get; set; }
         public int ProductID { get; set; }
