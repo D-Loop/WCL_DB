@@ -11,15 +11,15 @@ using System.Xml.Linq;
 
 namespace WCL.Models
 {
-    public class SalesReport
+    public class StockForecast
     {
-        [Key]  
-        public int ReportID { get; set; }
-        public DateTime ReportDate { get; set; }
-        public decimal TotalSales { get; set; }
-        public int EmployeeID { get; set; }
-    }
+        public int StockForecastID { get; set; }
+        public int ProductID { get; set; }
+        public DateTime ForecastDate { get; set; }
+        public int PredictedQuantity { get; set; }
 
+        public Product Product { get; set; }
+    }
 
 
 }

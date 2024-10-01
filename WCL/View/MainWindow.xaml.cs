@@ -24,14 +24,10 @@ namespace WCL.View
             // Инициализация каждой ViewModel
             var suppliersViewModel = new SuppliersViewModel();
             var reportsViewModel = new ReportsViewModel();
-            var backupViewModel = new BackupViewModel();
-            var sqlQueryViewModel = new SqlQueryViewModel();
 
             // Установка контекста данных для каждого TabItem
             SuppliersTab.DataContext = suppliersViewModel;
             ReportsTab.DataContext = reportsViewModel;
-            BackupTab.DataContext = backupViewModel;
-            SqlQueryTab.DataContext = sqlQueryViewModel;
 
             this.DataContext = new MainViewModel();
 
@@ -116,6 +112,26 @@ namespace WCL.View
 
             }
         }
+        private void Button_Click_4(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is MainViewModel tmp2)
+            {
+                tmp2.VisibilityWindowTemp = Visibility.Visible;
+                tmp2.VisibilityWindowAddStockForecasts = Visibility.Visible;
+
+            }
+        }
+
+        private void Button_Click_5(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is MainViewModel tmp2)
+            {
+                tmp2.VisibilityWindowTemp = Visibility.Visible;
+                tmp2.VisibilityWindowAddSupply= Visibility.Visible;
+
+            }
+        }
+
         private void AddCustomerButton_Click(object sender, RoutedEventArgs e)
         {
             string customerName = CustomerNameTextBox.Text;
@@ -153,6 +169,46 @@ namespace WCL.View
             else
             {
                 tmp.ErrorStringReg = "Please fill all fields.";
+            }
+        }
+        private async void AddSupplyPlanButton_Click(object sender, RoutedEventArgs e)
+        {
+            int productId = (int)ProductComboBox.SelectedValue;
+            int supplierId = (int)SupplierComboBox.SelectedValue;
+            DateTime plannedDate = PlannedDateDatePicker.SelectedDate ?? DateTime.Now;
+            int plannedQuantity;
+
+            if (!(this.DataContext is MainViewModel tmp)) return;
+
+            if (int.TryParse(PlannedQuantityTextBox.Text, out plannedQuantity))
+            {
+                await tmp.AddSupplyPlan(productId, plannedDate, plannedQuantity, supplierId);
+                tmp.SupplyPlan = await tmp.LoadSupplyPlans(); 
+                tmp.VisibilityWindowTemp = Visibility.Collapsed;
+            }
+            else
+            {
+                MessageBox.Show("Пожалуйста, введите корректное количество.");
+            }
+        }
+
+        private async void AddStockForecastButton_Click(object sender, RoutedEventArgs e)
+        {
+            int productId = (int)ProductComboBox2.SelectedValue;
+            DateTime forecastDate = ForecastDatePicker.SelectedDate ?? DateTime.Now;
+            int predictedQuantity;
+
+            if (!(this.DataContext is MainViewModel tmp)) return;
+
+            if (int.TryParse(PredictedQuantityTextBox.Text, out predictedQuantity))
+            {
+                await tmp.AddStockForecast(productId, forecastDate, predictedQuantity);
+                await tmp.LoadStockForecasts(); 
+                tmp.VisibilityWindowTemp = Visibility.Collapsed;
+            }
+            else
+            {
+                MessageBox.Show("Пожалуйста, введите корректное количество.");
             }
         }
 

@@ -437,6 +437,8 @@
                                 <Button Style="{StaticResource DataButton}" Width="100"  Content="Удалить" Command="{Binding RemoveProductCommand}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"/>
                             </Grid>
                         </TabItem>
+
+                      
                         <TabItem Header="Заказы" x:Name="OrdersTab">
                             <Grid>
                                 <DataGrid Name="OrdersDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding Orders}">
@@ -485,17 +487,35 @@
                             <Grid>
                                 <DataGrid Name="ReportsDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding Reports}">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" />
-                                        <DataGridTextColumn Header="Название отчета" Binding="{Binding ReportName}" />
-                                        <DataGridTextColumn Header="Дата создания" Binding="{Binding CreationDate}" />
+                                        <DataGridTextColumn Header="ID поставки" Binding="{Binding SupplyID}" />
+                                        <DataGridTextColumn Header="ID товара" Binding="{Binding ProductID}" />
+                                        <DataGridTextColumn Header="Количество" Binding="{Binding Quantity}" />
+                                        <DataGridTextColumn Header="Дата поставки" Binding="{Binding SupplyDate}" />
+                                        <DataGridTextColumn Header="Поставщик" Binding="{Binding SupplierName}" />
                                     </DataGrid.Columns>
+
                                 </DataGrid>
                                 <Button  Style="{StaticResource DataButton}" Width="150"   Content="Сформировать отчет" Command="{Binding GenerateReportCommand}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10"/>
                                 <Button  Style="{StaticResource DataButton}" Width="150" Content="Экспорт в Excel" Command="{Binding ExportToExcelCommand}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10"/>
                                 <Button  Style="{StaticResource DataButton}" Width="150" Content="Экспорт в Word" Command="{Binding ExportToWordCommand}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"/>
                             </Grid>
                         </TabItem>
-                        <TabItem Header="Резервное копирование" x:Name="BackupTab">
+                        <TabItem Header="Поставки"  x:Name="Supply">
+                            <Grid>
+                                <DataGrid Name="SupplyPlanDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding SupplyPlan}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Продукт" Binding="{Binding Product.ProductName}" />
+                                        <DataGridTextColumn Header="Поставщик" Binding="{Binding Supplier.SupplierName}" />
+                                        <DataGridTextColumn Header="Дата" Binding="{Binding SupplyDate}" />
+                                        <DataGridTextColumn Header="Количество" Binding="{Binding PlannedQuantity}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <Button  Style="{StaticResource DataButton}"  Width="100"  Content=" Добавить " Click="Button_Click_5" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10"/>
+                                <Button Style="{StaticResource DataButton}" Width="100"  Content="Удалить" Command="{Binding RemoveProductCommand}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10"/>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="Резервное копирование" >
                             <Grid>
                                 <StackPanel Margin="10">
                                     <TextBox Name="BackupPathTextBox" Width="300" />
@@ -505,10 +525,20 @@
                                 </StackPanel>
                             </Grid>
                         </TabItem>
-                        <TabItem Header="SQL Запросы" x:Name = "SqlQueryTab">
+                        <TabItem Header="SQL Запросы" x:Name = "SqlQueryTab" >
+                            <TabItem.Style>
+                                <Style TargetType="TabItem" BasedOn="{StaticResource {x:Type TabItem}}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding User.IsAdmin}" Value="true">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TabItem.Style>
                             <Grid>
                                 <StackPanel Margin="10">
-                                    <TextBox Name="SqlQueryTextBox" AcceptsReturn="True" Height="100" />
+                                    <TextBox Name="SqlQueryTextBox" Text="{Binding SqlQueryTextBoxText}" AcceptsReturn="True" Height="100" />
                                     <Button  Style="{StaticResource DataButton}"  Content="Выполнить запрос" Command="{Binding ExecuteQueryCommand}" Margin="5"/>
                                     <DataGrid Name="QueryResultsDataGrid" AutoGenerateColumns="True" ItemsSource="{Binding QueryResults}" />
                                 </StackPanel>
@@ -724,6 +754,35 @@
                             <Button Style="{StaticResource DataButton}" Content="Добавить" Width="200" Margin="0,10,0,0" Click="AddWarehouseButton_Click"/>
                         </StackPanel>
 
+                        <StackPanel Margin="20" Visibility="{Binding VisibilityWindowAddSupply}">
+                            <TextBlock Text="Выберите продукт:"  Style="{StaticResource TitleStyle}"/>
+                            <ComboBox x:Name="ProductComboBox" ItemsSource="{Binding Products}" DisplayMemberPath="ProductName" SelectedValuePath="ProductID" />
+
+                            <TextBlock Text="Выберите поставщика:" Margin="10,10,0,0"  Style="{StaticResource TitleStyle}"/>
+                            <ComboBox x:Name="SupplierComboBox" ItemsSource="{Binding ElementName=SuppliersTab, Path=DataContext.Suppliers,UpdateSourceTrigger=PropertyChanged}"
+                                      DisplayMemberPath="SupplierName" SelectedValuePath="SupplierID" />
+
+                            <TextBlock Text="Дата поставки:" Margin="10,10,0,0"  Style="{StaticResource TitleStyle}"/>
+                            <DatePicker x:Name="PlannedDateDatePicker" />
+
+                            <TextBlock Text="Количество:" Margin="10,10,0,0"  Style="{StaticResource TitleStyle}"/>
+                            <TextBox x:Name="PlannedQuantityTextBox" Width="100" />
+
+                            <Button Style="{StaticResource DataButton}" Content="Добавить " Width="150" Margin="10,10,0,0" Click="AddSupplyPlanButton_Click" />
+                        </StackPanel>
+
+                        <StackPanel Margin="20" Visibility="{Binding VisibilityWindowAddStockForecasts}">
+                            <TextBlock Text="Выберите продукт:"  Style="{StaticResource TitleStyle}"/>
+                            <ComboBox x:Name="ProductComboBox2" ItemsSource="{Binding Products}" DisplayMemberPath="ProductName" SelectedValuePath="ProductID" />
+
+                            <TextBlock Text="Дата прогноза:" Margin="10,10,0,0"  Style="{StaticResource TitleStyle}"/>
+                            <DatePicker x:Name="ForecastDatePicker" />
+
+                            <TextBlock Text="Прогнозируемое количество:" Margin="10,10,0,0"  Style="{StaticResource TitleStyle}"/>
+                            <TextBox x:Name="PredictedQuantityTextBox" Width="100" />
+
+                            <Button Style="{StaticResource DataButton}" Content="Добавить " Width="150" Margin="10,10,0,0" Click="Button_Click_4" />
+                        </StackPanel>
 
                     </StackPanel>
 

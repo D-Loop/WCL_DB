@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using WCL.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using WCL.ViewModels;
 
 
 namespace WCL.Helpers
@@ -18,10 +19,12 @@ namespace WCL.Helpers
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Employee> Employees { get; set; }
+        public DbSet<StockForecast> StockForecasts { get; set; }
+        public DbSet<SupplyPlan> SupplyPlans { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<WarehouseStock> WarehouseStocks { get; set; }
-        public DbSet<SalesReport> SalesReports { get; set; }
+        public DbSet<SupplyReport> SalesReports { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -32,6 +35,8 @@ namespace WCL.Helpers
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Product>().ToTable("Products");
+            modelBuilder.Entity<SupplyPlan>().ToTable("SupplyPlan");
+            modelBuilder.Entity<StockForecast>().ToTable("StockForecast");
             modelBuilder.Entity<Supplier>().ToTable("Suppliers");
             modelBuilder.Entity<Customer>().ToTable("Customers");
             modelBuilder.Entity<Order>().ToTable("Orders");
@@ -40,7 +45,6 @@ namespace WCL.Helpers
             modelBuilder.Entity<Category>().ToTable("Categories");
             modelBuilder.Entity<Warehouse>().ToTable("Warehouse");
             modelBuilder.Entity<WarehouseStock>().ToTable("WarehouseStock");
-            modelBuilder.Entity<SalesReport>().ToTable("SalesReports");
         }
 
     }

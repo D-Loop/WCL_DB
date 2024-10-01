@@ -1,8 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic.ApplicationServices;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -32,26 +35,40 @@ namespace WCL.ViewModels
         #region Constructor
         public MainViewModel()
         {
-            ErrorStrig = string.Empty;
-            VisibilityWindowTemp = Visibility.Collapsed;
-            VisibilityWindowAddOrder = Visibility.Collapsed;
-            VisibilityWindowAddwarehouse= Visibility.Collapsed;
-            VisibilityWindowAddOrder = Visibility.Collapsed;
-            VisibilityWindowAddCustomer = Visibility.Collapsed;
+            try
+            {
+                ErrorStrig = string.Empty;
+                VisibilityWindowTemp = Visibility.Collapsed;
+                VisibilityWindowAddOrder = Visibility.Collapsed;
+                VisibilityWindowAddwarehouse= Visibility.Collapsed;
+                VisibilityWindowAddOrder = Visibility.Collapsed;
+                VisibilityWindowAddCustomer = Visibility.Collapsed;
+                VisibilityWindowAddSupply = Visibility.Collapsed;
+                VisibilityWindowAddStockForecasts = Visibility.Collapsed;
 
-            User = new UserViewModel();
-            CommandCloseWindow = new Command(OnCloseWindow);
-            CommandMinimizeWindow = new Command(OnMinimizeWindow);
-            CommandMaximizeRestoreWindow = new Command(OnMaximizeRestoreWindow);
+                User = new UserViewModel();
+                CommandCloseWindow = new Command(OnCloseWindow);
+                CommandMinimizeWindow = new Command(OnMinimizeWindow);
+                CommandMaximizeRestoreWindow = new Command(OnMaximizeRestoreWindow);
+                ExecuteQueryCommand = new Command(ExecuteQuery);
 
-            CommandLogIn = new Command(OnLogIn);
-            CommandLogOut = new Command(OnLogOut);
-            CommandClearErrorString = new Command(OnClearErrorString);
-            CommandChangeVisibilityWindowRegistration= new Command(OnChangeVisibilityWindowRegistration);
+                CommandLogIn = new Command(OnLogIn);
+                CommandLogOut = new Command(OnLogOut);
+                CommandClearErrorString = new Command(OnClearErrorString);
+                CommandChangeVisibilityWindowRegistration= new Command(OnChangeVisibilityWindowRegistration);
+                BrowseBackupPathCommand = new Command(BrowseBackupPath);
+                BackupCommand = new Command(BackupDatabase);
+                RestoreCommand = new Command(RestoreDatabase);
 
-            LoadWarehouses();
-            LoadOrders();
-            LoadCustomers();
+                LoadWarehouses();
+                LoadOrders();
+                LoadCustomers();
+                LoadProducts();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message); // Вывод ошибки для диагностики
+            }
         }
         #endregion
 
@@ -91,6 +108,27 @@ namespace WCL.ViewModels
                 OnPropertyChanged("IsHasError");
             }
         }
+        private List<SupplyPlan> _supplyPlan { get; set; }
+        public List<SupplyPlan> SupplyPlan
+        {
+            get => _supplyPlan ?? new List<SupplyPlan>();
+            set
+            {
+                _supplyPlan = value;
+                OnPropertyChanged("SupplyPlan");
+            }
+        }
+        private List<Product> _products { get; set; }
+        public List<Product> Products
+        {
+            get => _products ?? new List<Product>();
+            set
+            {
+                _products = value;
+                OnPropertyChanged("Products");
+            }
+        }
+
         private List<Warehouse> _warehouse { get; set; }
         public List<Warehouse> Warehouses
         {
@@ -104,8 +142,8 @@ namespace WCL.ViewModels
 
         private List<UserViewModel> _users = new List<UserViewModel>
         {
-            new UserViewModel { UserID = 1, Username = "a", Password = "a", IsAdmin = true,FIO ="Lobas Nikita Victorovich" },
-            new UserViewModel { UserID = 2, Username = "user", Password = "user123", IsAdmin = false ,FIO ="Lobas Nikita Victorovich" }
+            new UserViewModel { UserID = 1, Username = "Admin", Password = "admin", IsAdmin = true,FIO ="Lobas Mikita Victorovich" },
+            new UserViewModel { UserID = 2, Username = "User", Password = "user", IsAdmin = false ,FIO ="Lobas Nikita Victorovich" }
         };
 
         private string? _errorStrig { get; set; }
@@ -151,6 +189,54 @@ namespace WCL.ViewModels
             }
         }
 
+
+        private Visibility _visibilityWindowAddSupply { get; set; }
+        public Visibility VisibilityWindowAddSupply
+        {
+            get => _visibilityWindowAddSupply;
+            set
+            {
+                _visibilityWindowAddSupply = value;
+                OnPropertyChanged("VisibilityWindowAddSupply");
+            }
+        }
+
+
+        private Visibility _visibilityWindowAddStockForecasts { get; set; }
+        public Visibility VisibilityWindowAddStockForecasts
+        { 
+            get => _visibilityWindowAddStockForecasts;
+            set
+            {
+                _visibilityWindowAddStockForecasts = value;
+                OnPropertyChanged("VisibilityWindowAddStockForecasts");
+            }
+        }
+        public ICommand BrowseBackupPathCommand { get; }
+        public ICommand BackupCommand { get; }
+        public ICommand RestoreCommand { get; }
+
+        private string _backupPath;
+        public string BackupPath
+        {
+            get => _backupPath;
+            set
+            {
+                _backupPath = value;
+                OnPropertyChanged(nameof(BackupPath));
+            }
+        }
+
+        private string _sqlQueryTextBoxText { get; set; }
+        public string SqlQueryTextBoxText
+        {
+            get => _sqlQueryTextBoxText;
+            set
+            {
+                _sqlQueryTextBoxText = value;
+                OnPropertyChanged("SqlQueryTextBoxText");
+            }
+        }
         private Visibility _visibilityWindowAddCustomer { get; set; }
         public Visibility VisibilityWindowAddCustomer
         {
@@ -161,6 +247,19 @@ namespace WCL.ViewModels
                 OnPropertyChanged("VisibilityWindowAddCustomer");
             }
         }
+        public ICommand ExecuteQueryCommand { get; set; }
+
+        private DataTable _queryResults;
+        public DataTable QueryResults
+        {
+            get => _queryResults;
+            set
+            {
+                _queryResults = value;
+                OnPropertyChanged(nameof(QueryResults));
+            }
+        }
+
 
         private Visibility _visibilityWindowAddwarehouse { get; set; }
         public Visibility VisibilityWindowAddwarehouse
@@ -188,7 +287,7 @@ namespace WCL.ViewModels
                     case 1: LoadWarehouses(); break;
                     case 2: LoadOrders(); break;
                     case 4: LoadCustomers(); break;
-                    case 5: break;
+                    case 5: LoadSupplyPlans(); break;
                     case 6: break;
                     
                     default: break;
@@ -255,6 +354,174 @@ namespace WCL.ViewModels
             LoadOrders();
 
         }
+        public async Task<List<StockForecast>> LoadStockForecasts()
+        {
+            using (var context = new ProductCompanyContext())
+            {
+                return await context.StockForecasts.Include(sf => sf.Product).ToListAsync();
+            }
+        }
+
+        private void BrowseBackupPath()
+        {
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "Backup Files (*.bak)|*.bak",
+                DefaultExt = ".bak"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                BackupPath = dialog.FileName;
+            }
+        }
+        private void RestoreDatabase()
+        {
+            if (string.IsNullOrWhiteSpace(BackupPath))
+            {
+                // Обработка ошибки
+                return;
+            }
+
+            using (var context = new ProductCompanyContext())
+            {
+                try
+                {
+                    // Установка базы данных в режим единого пользователя
+                    string setSingleUserQuery = $"USE master; ALTER DATABASE [{context.Database.GetDbConnection().Database}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;";
+                    string restoreQuery = $"RESTORE DATABASE [{context.Database.GetDbConnection().Database}] FROM DISK = '{BackupPath}' WITH REPLACE;";
+                    string setMultiUserQuery = $"ALTER DATABASE [{context.Database.GetDbConnection().Database}] SET MULTI_USER;";
+
+                    context.Database.OpenConnection();
+
+                    using (var command = context.Database.GetDbConnection().CreateCommand())
+                    {
+                        // Выполнение запроса на установку в режим единого пользователя
+                        command.CommandText = setSingleUserQuery;
+                        command.ExecuteNonQuery();
+
+                        // Выполнение запроса на восстановление базы данных
+                        command.CommandText = restoreQuery;
+                        command.ExecuteNonQuery();
+
+                        // Возврат базы данных в режим многопользовательского
+                        command.CommandText = setMultiUserQuery;
+                        command.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Обработка ошибок
+                    Console.WriteLine(ex.Message);
+                }
+                finally
+                {
+                    context.Database.CloseConnection();
+                }
+            }
+        }
+
+        private void BackupDatabase()
+        {
+            if (string.IsNullOrWhiteSpace(BackupPath))
+            {
+                // Обработка ошибки
+                return;
+            }
+
+            using (var context = new ProductCompanyContext())
+            {
+                try
+                {
+                    string query = $"BACKUP DATABASE [{context.Database.GetDbConnection().Database}] TO DISK = '{BackupPath}'";
+                    using (var command = context.Database.GetDbConnection().CreateCommand())
+                    {
+                        command.CommandText = query;
+                        context.Database.OpenConnection();
+                        command.ExecuteNonQuery();
+                        // Успех
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Обработка ошибок
+                    Console.WriteLine(ex.Message);
+                }
+                finally
+                {
+                    context.Database.CloseConnection();
+                }
+            }
+        }
+
+        public void BackupDatabase(string backupFilePath)
+        {
+            using (var context = new ProductCompanyContext())
+            {
+                try
+                {
+                    string query = $"BACKUP DATABASE [{context.Database.GetDbConnection().Database}] TO DISK = '{backupFilePath}'";
+                    using (var command = context.Database.GetDbConnection().CreateCommand())
+                    {
+                        command.CommandText = query;
+                        context.Database.OpenConnection();
+                        command.ExecuteNonQuery(); // Выполнение команды
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Обработка ошибок
+                    Console.WriteLine(ex.Message);
+                }
+                finally
+                {
+                    context.Database.CloseConnection();
+                }
+            }
+        }
+
+        public async Task AddStockForecast(int productId, DateTime forecastDate, int predictedQuantity)
+        {
+            var stockForecast = new StockForecast
+            {
+                ProductID = productId,
+                ForecastDate = forecastDate,
+                PredictedQuantity = predictedQuantity
+            };
+
+            using (var context = new ProductCompanyContext())
+            {
+                context.StockForecasts.Add(stockForecast);
+                await context.SaveChangesAsync();
+            }
+        }
+
+
+        public async Task AddSupplyPlan(int productId, DateTime plannedDate, int plannedQuantity, int supplierId)
+        {
+            var supplyPlan = new SupplyPlan
+            {
+                ProductID = productId,
+                SupplyDate = plannedDate,
+                PlannedQuantity = plannedQuantity,
+                SupplierID = supplierId
+            };
+
+            using (var context = new ProductCompanyContext())
+            {
+                context.SupplyPlans.Add(supplyPlan);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<List<SupplyPlan>> LoadSupplyPlans()
+        {
+            using (var context = new ProductCompanyContext())
+            {
+                return await context.SupplyPlans.Include(sp => sp.Product).Include(sp => sp.Supplier).ToListAsync();
+            }
+        }
+
 
         public void AddWarehouse(string warehouseName, string location)
         {
@@ -267,7 +534,13 @@ namespace WCL.ViewModels
             VisibilityWindowAddwarehouse = Visibility.Collapsed;
             LoadWarehouses();
         }
-
+        private void LoadProducts()
+        {
+            using (var context = new ProductCompanyContext())
+            {
+                Products = context.Products.ToList();
+            }
+        }
         private void LoadCustomers()
         {
             using (var context = new ProductCompanyContext())
@@ -303,6 +576,45 @@ namespace WCL.ViewModels
                 : Visibility.Collapsed;
         }
 
+        private void ExecuteQuery()
+        {
+            var query = SqlQueryTextBoxText; // Получаем SQL-запрос
+            using (var context = new ProductCompanyContext())
+            {
+                try
+                {
+                    // Создаем DataTable для хранения результатов
+                    DataTable dataTable = new DataTable();
+
+                    using (var command = context.Database.GetDbConnection().CreateCommand())
+                    {
+                        command.CommandText = query; // Устанавливаем CommandText
+                        context.Database.OpenConnection(); // Открываем соединение
+
+                        using (var reader = command.ExecuteReader())
+                        {
+                            dataTable.Load(reader); // Загружаем данные в DataTable
+                        }
+                    }
+
+                    // Присваиваем результат в QueryResults
+                    QueryResults = dataTable;
+                }
+                catch (Exception ex)
+                {
+                    // Обработка ошибок
+                    Console.WriteLine(ex.Message);
+                }
+                finally
+                {
+                    context.Database.CloseConnection(); // Закрываем соединение
+                }
+            }
+        }
+
+
+
+
         /// <summary> Авторизация пользователя по введенным даным</summary>
         public ICommand CommandLogIn { get; set; }
         private void OnLogIn()
@@ -316,6 +628,7 @@ namespace WCL.ViewModels
                 { 
                     User.FIO = _user.FIO;
                     User.IsLogIn = true;
+                    User.IsAdmin = _user.IsAdmin;
                 }
                 else
                 {

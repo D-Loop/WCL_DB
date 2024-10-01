@@ -90,6 +90,18 @@ CREATE TABLE SalesReports (
     EmployeeID INT,
     FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
 );
+GO
+CREATE TABLE SupplyPlan (
+    SupplyPlanID INT PRIMARY KEY IDENTITY,
+    SupplierID INT,
+    WarehouseID INT,
+    ProductID INT,
+    PlannedQuantity INT,
+    SupplyDate DATETIME,
+    FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID),
+    FOREIGN KEY (WarehouseID) REFERENCES Warehouse(WarehouseID),
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
 
 GO
 CREATE INDEX idx_ProductName ON Products (ProductName);
